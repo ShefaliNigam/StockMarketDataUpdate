@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StockController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">com.stockcharting.app</a> &gt; <a href="index.source.html" class="el_package">com.stockcharting.app.controller</a> &gt; <span class="el_source">StockController.java</span></div><h1>StockController.java</h1><pre class="source lang-java linenums">package com.stockcharting.app.controller;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.stockcharting.app.entity.StockEntity;
+import com.stockcharting.app.service.StockService;
+
+import java.io.IOException;
+import java.util.List;
+
+@RestController
+@RequestMapping(&quot;/api/stocks&quot;)
+<span class="fc" id="L17">public class StockController {</span>
+
+    @Autowired
+    private StockService stockService;
+    @PostMapping(&quot;/bulk/upload&quot;)
+    public ResponseEntity&lt;String&gt; uploadStocks(@RequestParam(&quot;file&quot;) MultipartFile file) {
+        try {
+<span class="nc bnc" id="L24" title="All 2 branches missed.">            if (file.isEmpty()) {</span>
+<span class="nc" id="L25">                return ResponseEntity.badRequest().body(&quot;No file uploaded&quot;);</span>
+            }
+
+<span class="nc" id="L28">            List&lt;StockEntity&gt; stocks = stockService.readStocksFromExcel(file);</span>
+<span class="nc" id="L29">            stockService.saveStocks(stocks);</span>
+<span class="nc" id="L30">            return ResponseEntity.ok(&quot;Stocks uploaded successfully&quot;);</span>
+<span class="nc" id="L31">        } catch (IOException e) {</span>
+<span class="nc" id="L32">            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)</span>
+<span class="nc" id="L33">                                 .body(&quot;Failed to upload stocks: &quot; + e.getMessage());</span>
+        }
+    }
+
+    @GetMapping(&quot;/bulk/download&quot;)
+    public ResponseEntity&lt;byte[]&gt; downloadStocks() {
+<span class="nc" id="L39">        List&lt;StockEntity&gt; stocks = stockService.getAllStocks();</span>
+<span class="nc" id="L40">        byte[] excelFile = stockService.writeStocksToExcel(stocks);</span>
+
+<span class="nc" id="L42">        HttpHeaders headers = new HttpHeaders();</span>
+<span class="nc" id="L43">        headers.set(HttpHeaders.CONTENT_DISPOSITION, &quot;attachment; filename=stocks.xlsx&quot;);</span>
+<span class="nc" id="L44">        headers.set(HttpHeaders.CONTENT_TYPE, &quot;application/vnd.openxmlformats-officedocument.spreadsheetml.sheet&quot;);</span>
+
+<span class="nc" id="L46">        return new ResponseEntity&lt;&gt;(excelFile, headers, HttpStatus.OK);</span>
+    }
+}
+
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.7.202105040129</span></div></body></html>

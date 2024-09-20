@@ -1,0 +1,5 @@
+com\stockcharting\app\entity\StockEntity.class
+com\stockcharting\app\repository\StockRepository.class
+com\stockcharting\app\controller\StockController.class
+com\stockcharting\app\service\StockService.class
+com\stockcharting\app\Application.class
